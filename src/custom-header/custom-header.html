@@ -1,0 +1,66 @@
+<template id="custom-header-template">
+    <style>
+        h1 {
+            color: white;
+            background-color: #666;
+            padding: 5px;
+        }
+    </style>
+    <div class="container">
+        <h1> Default Heading </h1>
+        <slot name='content'>
+            Do voluptate ullamco reprehenderit consectetur aute.
+        </slot>
+    </div>
+</template>
+<script>
+    class CustomHeader extends HTMLElement {
+        constructor() {
+            super();
+            this._heading = null;
+            console.log('custom-header constructor is called');
+        }
+
+        get heading() {
+            return this._heading;
+        }
+
+        set heading(value) {
+            this.setAttribute('heading', value);
+        }
+
+        connectedCallback() {
+            const template = document.currentScript.ownerDocument.getElementById('custom-header-template');
+            const templateContent = template.content;
+
+            this._shadowRoot = this.attachShadow({mode: 'open'});
+            this._shadowRoot.appendChild(templateContent.cloneNode(true));
+            console.log('custom-header is connected');
+        }
+
+        disconnectedCallback() {
+            console.log('custom-header is disconnected');
+        }
+
+        static get observedAttributes() {
+            return ['heading'];
+        }
+
+        attributeChangedCallback(name, oldValue, newValue) {
+            console.log(name, oldValue, newValue);
+            switch (name) {
+                case 'heading':
+                    this._heading = newValue;
+                    this.updateHeading();
+                    break;
+                default:
+            }
+        }
+
+        updateHeading() {
+            const heading = this._shadowRoot.querySelector('h1');
+            heading.innerText = this._heading;
+        }
+    };
+    window.customElements.define('custom-header', CustomHeader);
+</script>
